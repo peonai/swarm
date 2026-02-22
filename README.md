@@ -6,6 +6,14 @@ Cross-agent user profile synchronization. Teach one agent about yourself — eve
 
 You use 5 AI agents. Each one asks the same questions. You repeat yourself endlessly. Swarm fixes this with a shared profile layer that any agent can read and write.
 
+## Live Demo
+
+Try it without installing: **[hive.peonai.net](http://hive.peonai.net)**
+
+Test account: `peon` / `123456`
+
+> ⚠️ **Privacy Warning:** This is a shared public instance. Do NOT connect your real AI agents or enter personal information. Use a disposable agent or VM for testing.
+
 ## Quick Start
 
 ```bash
