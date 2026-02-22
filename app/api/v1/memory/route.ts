@@ -19,7 +19,7 @@ export const GET = withAuthOrAdmin(async (req, agent) => {
 
   // Semantic search mode
   if (q && mode === 'semantic') {
-    const qVec = await embed(q);
+    const qVec = await embed(q, agent.userId);
     const all = await db.prepare('SELECT * FROM memories WHERE user_id = ? AND embedding IS NOT NULL ORDER BY created_at DESC')
       .all(agent.userId) as any[];
     const scored = all.map(m => ({ ...m, score: cosine(qVec, JSON.parse(m.embedding)) }))
@@ -85,7 +85,7 @@ export const POST = withAuthOrAdmin(async (req, agent) => {
     .run(agent.userId, key || null, content, agent.id, tagsStr, type || 'observation', importance ?? 0.5, entStr, null);
 
   // Background embed — don't block response
-  embed(content).then(async vec => {
+  embed(content, agent.userId).then(async vec => {
     const rows = await db.prepare('SELECT id FROM memories WHERE user_id = ? AND content = ? ORDER BY id DESC LIMIT 1').all(agent.userId, content) as any[];
     if (rows[0]) await db.prepare('UPDATE memories SET embedding = ? WHERE id = ?').run(JSON.stringify(vec), rows[0].id);
   }).catch(() => {});
