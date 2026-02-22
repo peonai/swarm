@@ -31,7 +31,7 @@ function LoginForm() {
   const inputStyle = { background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
       <div className="hex-bg" />
       <div className="glow-card p-8 w-full max-w-sm relative z-10" style={{ border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-3 mb-6 justify-center">
@@ -52,6 +52,9 @@ function LoginForm() {
           </button>
         </form>
       </div>
+      <p className="relative z-10 mt-6 text-[10px]" style={{ color: 'var(--text2)' }}>
+        © 2026 PeonAI · <a href="mailto:peon@peonai.net" style={{ textDecoration: 'underline', color: 'inherit' }}>peon@peonai.net</a> · <a href="/privacy" style={{ textDecoration: 'underline', color: 'inherit' }}>Privacy</a> · <a href="/terms" style={{ textDecoration: 'underline', color: 'inherit' }}>Terms</a>
+      </p>
     </div>
   );
 }

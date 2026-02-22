@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Swarm AI</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner"><a href="/" class="nav-logo"><span>Swarm AI</span></a><div class="nav-links"><a href="./">Home</a><a href="docs.html">Docs</a></div></div></nav>
+
+<section class="doc-section" style="max-width:720px;margin:100px auto;padding:0 24px">
+<h1>Privacy Policy</h1>
+<p><em>Last updated: February 22, 2026</em></p>
+
+<h2>1. Overview</h2>
+<p>Swarm AI ("the Service") is an open-source, self-hosted user profile synchronization system operated by PeonAI. This policy describes how data is handled when you use the Service.</p>
+
+<h2>2. Data We Collect</h2>
+<ul>
+<li><strong>Account data:</strong> Username, display name, hashed password (scrypt). We never store plaintext passwords.</li>
+<li><strong>Profile data:</strong> Information you or your AI agents write to the profile system (identity, preferences, work context, etc.).</li>
+<li><strong>Memory data:</strong> Text entries stored via the memory API.</li>
+<li><strong>Audit logs:</strong> API actions, timestamps, and agent identifiers for security purposes.</li>
+</ul>
+
+<h2>3. How Data Is Stored</h2>
+<p>All data is stored in the database on your self-hosted server (SQLite or PostgreSQL). PeonAI does not have access to your instance data. You control your data entirely.</p>
+
+<h2>4. Third-Party Services</h2>
+<p>If you configure an embedding API (e.g., OpenAI, Zhipu), text may be sent to that provider for vectorization. Review their privacy policies separately.</p>
+
+<h2>5. Data Sharing</h2>
+<p>We do not sell, rent, or share your data with third parties. Your self-hosted instance is yours alone.</p>
+
+<h2>6. Data Deletion</h2>
+<p>You can delete your account, profile data, and memories at any time through the dashboard or by deleting the database file. Uninstalling the service removes all application files.</p>
+
+<h2>7. Contact</h2>
+<p>For privacy questions: <a href="mailto:peon@peonai.net">peon@peonai.net</a></p>
+</section>
+
+<footer class="footer"><div class="container footer-inner"><p class="footer-copy">&copy; 2026 PeonAI. MIT License.</p></div></footer>
+<script src="script.js"></script>
+</body>
+</html>

@@ -20,7 +20,21 @@ function Guard({ children }: { children: React.ReactNode }) {
       <div className="hex-bg" />
       <div className="flex min-h-screen relative z-10">
         <Sidebar />
-        <main className="flex-1 p-4 md:p-6 overflow-auto md:ml-0 ml-0 pt-14 md:pt-6">{children}</main>
+        <main className="flex-1 p-4 md:p-6 overflow-auto md:ml-0 ml-0 pt-14 md:pt-6">
+          {children}
+          <footer className="mt-12 pt-4 pb-6 text-center text-[10px]" style={{ color: 'var(--text2)', borderTop: '1px solid var(--border)' }}>
+            <p>© 2026 PeonAI. MIT License.</p>
+            <p className="mt-1">
+              <a href="mailto:peon@peonai.net" style={{ color: 'var(--text2)', textDecoration: 'underline' }}>peon@peonai.net</a>
+              {' · '}
+              <a href="https://github.com/peonai/swarm" target="_blank" style={{ color: 'var(--text2)', textDecoration: 'underline' }}>GitHub</a>
+              {' · '}
+              <a href="/privacy" style={{ color: 'var(--text2)', textDecoration: 'underline' }}>Privacy</a>
+              {' · '}
+              <a href="/terms" style={{ color: 'var(--text2)', textDecoration: 'underline' }}>Terms</a>
+            </p>
+          </footer>
+        </main>
       </div>
     </>
   );
