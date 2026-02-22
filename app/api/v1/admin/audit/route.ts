@@ -2,9 +2,9 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { initSchema } from '@/lib/schema';
-import { withAdmin } from '@/lib/auth';
+import { withUser } from '@/lib/auth';
 
-export const GET = withAdmin(async (req, userId) => {
+export const GET = withUser(async (req, userId, _role) => {
   await initSchema();
   const { searchParams } = req.nextUrl;
   const limit = Number(searchParams.get('limit') || 50);

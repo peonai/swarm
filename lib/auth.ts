@@ -48,6 +48,16 @@ export function withAdmin(handler: (req: NextRequest, userId: string) => Promise
   };
 }
 
+export function withUser(handler: (req: NextRequest, userId: string, role: string) => Promise<NextResponse>) {
+  return async (req: NextRequest) => {
+    const jwt = req.headers.get('authorization')?.replace('Bearer ', '');
+    if (!jwt) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const payload = await verifyJwt(jwt);
+    if (!payload?.userId) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    return handler(req, payload.userId, payload.role || 'user');
+  };
+}
+
 export { initSchema } from './schema';
 
 export function withAuthOrAdmin(handler: (req: NextRequest, agent: { id: string; userId: string; permissions: string }) => Promise<NextResponse>) {

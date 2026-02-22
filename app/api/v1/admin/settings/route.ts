@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { withAdmin } from '@/lib/auth';
+import { withAdmin, withUser } from '@/lib/auth';
 import { getEmbeddingConfig } from '@/lib/embedding';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -22,12 +22,10 @@ function writeEnv(env: Record<string, string>) {
   writeFileSync(ENV_PATH, Object.entries(env).map(([k, v]) => `${k}=${v}`).join('\n') + '\n');
 }
 
-export const GET = withAdmin(async () => {
-  return NextResponse.json({
-    embedding: getEmbeddingConfig(),
-    adminToken: process.env.SWARM_ADMIN_TOKEN || 'swarm-admin-dev',
-    port: process.env.PORT || '3777',
-  });
+export const GET = withUser(async (_req, _userId, role) => {
+  const base: any = { embedding: getEmbeddingConfig(), port: process.env.PORT || '3777' };
+  if (role === 'admin') base.adminToken = process.env.SWARM_ADMIN_TOKEN || 'swarm-admin-dev';
+  return NextResponse.json(base);
 });
 
 export const PATCH = withAdmin(async (req) => {

@@ -2,15 +2,15 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { initSchema } from '@/lib/schema';
-import { withAdmin } from '@/lib/auth';
+import { withUser } from '@/lib/auth';
 
-export const GET = withAdmin(async (_req, userId) => {
+export const GET = withUser(async (_req, userId, _role) => {
   await initSchema();
   const rows = await db.prepare('SELECT id, name, api_key, permissions, persona, created_at FROM agents WHERE user_id = ?').all(userId) as any[];
   return NextResponse.json(rows.map(a => ({ ...a, persona: a.persona ? JSON.parse(a.persona) : null })));
 });
 
-export const POST = withAdmin(async (req, userId) => {
+export const POST = withUser(async (req, userId, _role) => {
   await initSchema();
   const { id, name, permissions = 'read,write' } = await req.json();
   const agentId = id || crypto.randomUUID().slice(0, 12);
@@ -19,7 +19,7 @@ export const POST = withAdmin(async (req, userId) => {
   return NextResponse.json({ id: agentId, apiKey, permissions });
 });
 
-export const PATCH = withAdmin(async (req, userId) => {
+export const PATCH = withUser(async (req, userId, _role) => {
   await initSchema();
   const { id, persona, name } = await req.json();
   if (!id) return NextResponse.json({ error: 'Missing agent id' }, { status: 400 });
