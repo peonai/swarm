@@ -118,8 +118,8 @@ export async function getAgentByKey(apiKey: string) {
 
 export async function getUserByToken(apiToken: string) {
   await initSchema();
-  return db.prepare('SELECT id, id as "userId" FROM users WHERE api_token = ? AND (disabled = 0 OR disabled IS NULL)').get(apiToken) as
-    Promise<{ id: string; userId: string } | null>;
+  return db.prepare('SELECT id, id as "userId", role FROM users WHERE api_token = ? AND (disabled = 0 OR disabled IS NULL)').get(apiToken) as
+    Promise<{ id: string; userId: string; role: string } | null>;
 }
 
 export async function ensureDefaultUser() {
