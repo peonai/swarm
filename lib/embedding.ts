@@ -4,19 +4,18 @@ import { initSchema } from './schema';
 
 async function getConfig(userId?: string) {
   await initSchema();
-  const get = (uid: string, key: string) =>
-    db.prepare('SELECT value FROM user_settings WHERE user_id = ? AND key = ?').get(uid, key) as any;
+  const get = async (uid: string, key: string) =>
+    await db.prepare('SELECT value FROM user_settings WHERE user_id = ? AND key = ?').get(uid, key) as any;
 
-  // user override → global DB → process.env
-  const resolve = (key: string, envKey: string) => {
-    if (userId) { const r = get(userId, key); if (r?.value) return r.value; }
-    const g = get('__global__', key); if (g?.value) return g.value;
+  const resolve = async (key: string, envKey: string) => {
+    if (userId) { const r = await get(userId, key); if (r?.value) return r.value; }
+    const g = await get('__global__', key); if (g?.value) return g.value;
     return process.env[envKey] || '';
   };
 
-  const url = resolve('embed_url', 'EMBED_URL');
-  const key = resolve('embed_key', 'EMBED_KEY');
-  const model = resolve('embed_model', 'EMBED_MODEL') || 'text-embedding-3-small';
+  const url = await resolve('embed_url', 'EMBED_URL');
+  const key = await resolve('embed_key', 'EMBED_KEY');
+  const model = (await resolve('embed_model', 'EMBED_MODEL')) || 'text-embedding-3-small';
   return { url, key, model, enabled: !!(url && key) };
 }
 
