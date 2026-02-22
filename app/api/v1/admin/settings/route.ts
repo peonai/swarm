@@ -33,10 +33,10 @@ export const PATCH = withAdmin(async (req) => {
   if (!embedding) return NextResponse.json({ error: 'Missing embedding' }, { status: 400 });
 
   const env = readEnv();
-  if (embedding.url !== undefined) env.EMBED_URL = embedding.url;
-  if (embedding.key !== undefined) env.EMBED_KEY = embedding.key;
-  if (embedding.model !== undefined) env.EMBED_MODEL = embedding.model;
+  if (embedding.url !== undefined) { env.EMBED_URL = embedding.url; process.env.EMBED_URL = embedding.url; }
+  if (embedding.key !== undefined) { env.EMBED_KEY = embedding.key; process.env.EMBED_KEY = embedding.key; }
+  if (embedding.model !== undefined) { env.EMBED_MODEL = embedding.model; process.env.EMBED_MODEL = embedding.model; }
   writeEnv(env);
 
-  return NextResponse.json({ ok: true, note: 'Restart server to apply changes' });
+  return NextResponse.json({ ok: true });
 });
