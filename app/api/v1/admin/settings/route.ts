@@ -1,42 +1,47 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAdmin, withUser } from '@/lib/auth';
-import { getEmbeddingConfig } from '@/lib/embedding';
-import { writeFileSync, readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { initSchema } from '@/lib/schema';
+import db from '@/lib/db';
 
-const ENV_PATH = join(process.cwd(), '.env.local');
+async function getSettings(userId: string) {
+  await initSchema();
+  const rows = await db.prepare('SELECT key, value FROM user_settings WHERE user_id = ?').all(userId) as any[];
+  const m: Record<string, string> = {};
+  for (const r of rows) m[r.key] = r.value;
+  return m;
+}
 
-function readEnv(): Record<string, string> {
-  if (!existsSync(ENV_PATH)) return {};
-  const lines = readFileSync(ENV_PATH, 'utf8').split('\n');
-  const env: Record<string, string> = {};
-  for (const l of lines) {
-    const m = l.match(/^([^=]+)=(.*)$/);
-    if (m) env[m[1]] = m[2];
+async function setSetting(userId: string, key: string, value: string) {
+  await initSchema();
+  await db.prepare('INSERT INTO user_settings (user_id, key, value) VALUES (?, ?, ?) ON CONFLICT(user_id, key) DO UPDATE SET value = excluded.value').run(userId, key, value);
+}
+
+export const GET = withUser(async (_req, userId, role) => {
+  const user = await getSettings(userId);
+  const global = await getSettings('__global__');
+  const embedding = {
+    url: user.embed_url || global.embed_url || process.env.EMBED_URL || '',
+    model: user.embed_model || global.embed_model || process.env.EMBED_MODEL || '',
+    enabled: !!(user.embed_url || global.embed_url || process.env.EMBED_URL),
+  };
+  const res: any = { embedding, port: process.env.PORT || '3777' };
+  if (role === 'admin') {
+    res.adminToken = process.env.SWARM_ADMIN_TOKEN || 'swarm-admin-dev';
+    res.globalEmbedding = {
+      url: global.embed_url || process.env.EMBED_URL || '',
+      model: global.embed_model || process.env.EMBED_MODEL || '',
+    };
   }
-  return env;
-}
-
-function writeEnv(env: Record<string, string>) {
-  writeFileSync(ENV_PATH, Object.entries(env).map(([k, v]) => `${k}=${v}`).join('\n') + '\n');
-}
-
-export const GET = withUser(async (_req, _userId, role) => {
-  const base: any = { embedding: getEmbeddingConfig(), port: process.env.PORT || '3777' };
-  if (role === 'admin') base.adminToken = process.env.SWARM_ADMIN_TOKEN || 'swarm-admin-dev';
-  return NextResponse.json(base);
+  return NextResponse.json(res);
 });
 
-export const PATCH = withAdmin(async (req) => {
-  const { embedding } = await req.json();
+export const PATCH = withUser(async (req, userId, role) => {
+  const { embedding, scope } = await req.json();
   if (!embedding) return NextResponse.json({ error: 'Missing embedding' }, { status: 400 });
-
-  const env = readEnv();
-  if (embedding.url !== undefined) { env.EMBED_URL = embedding.url; process.env.EMBED_URL = embedding.url; }
-  if (embedding.key !== undefined) { env.EMBED_KEY = embedding.key; process.env.EMBED_KEY = embedding.key; }
-  if (embedding.model !== undefined) { env.EMBED_MODEL = embedding.model; process.env.EMBED_MODEL = embedding.model; }
-  writeEnv(env);
-
+  const target = (scope === 'global' && role === 'admin') ? '__global__' : userId;
+  if (embedding.url !== undefined) await setSetting(target, 'embed_url', embedding.url);
+  if (embedding.key !== undefined) await setSetting(target, 'embed_key', embedding.key);
+  if (embedding.model !== undefined) await setSetting(target, 'embed_model', embedding.model);
   return NextResponse.json({ ok: true });
 });

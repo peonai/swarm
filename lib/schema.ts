@@ -98,6 +98,13 @@ export async function initSchema() {
   )`);
 
   // Profile history table
+  await db.exec(`CREATE TABLE IF NOT EXISTS user_settings (
+    user_id TEXT NOT NULL,
+    key TEXT NOT NULL,
+    value TEXT NOT NULL,
+    PRIMARY KEY (user_id, key)
+  )`);
+
   await db.exec(`CREATE TABLE IF NOT EXISTS profile_history (
     id ${AUTO_ID},
     user_id TEXT NOT NULL,

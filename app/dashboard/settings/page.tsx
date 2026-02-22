@@ -20,8 +20,9 @@ export default function SettingsPage() {
   }, [token]);
 
   const save = async () => {
+    const scope = user?.role === 'admin' ? 'global' : 'user';
     await fetch('/api/v1/admin/settings', { method: 'PATCH', headers: authHeaders(token),
-      body: JSON.stringify({ embedding: { url: cfg.url, key: cfg.key || undefined, model: cfg.model } }) });
+      body: JSON.stringify({ embedding: { url: cfg.url, key: cfg.key || undefined, model: cfg.model }, scope }) });
     setMsg('Saved!'); setTimeout(() => setMsg(''), 4000);
   };
   const test = async () => {

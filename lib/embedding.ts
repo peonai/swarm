@@ -1,16 +1,32 @@
 /* embedding.ts — OpenAI-compatible embedding API, graceful fallback */
-const EMBED_URL = process.env.EMBED_URL || '';
-const EMBED_KEY = process.env.EMBED_KEY || '';
-const EMBED_MODEL = process.env.EMBED_MODEL || 'text-embedding-3-small';
+import db from './db';
+import { initSchema } from './schema';
 
-export const embeddingEnabled = !!(EMBED_URL && EMBED_KEY);
+async function getConfig(userId?: string) {
+  await initSchema();
+  const get = (uid: string, key: string) =>
+    db.prepare('SELECT value FROM user_settings WHERE user_id = ? AND key = ?').get(uid, key) as any;
 
-export async function embed(text: string): Promise<number[]> {
-  if (!embeddingEnabled) return [];
-  const res = await fetch(EMBED_URL, {
+  // user override → global DB → process.env
+  const resolve = (key: string, envKey: string) => {
+    if (userId) { const r = get(userId, key); if (r?.value) return r.value; }
+    const g = get('__global__', key); if (g?.value) return g.value;
+    return process.env[envKey] || '';
+  };
+
+  const url = resolve('embed_url', 'EMBED_URL');
+  const key = resolve('embed_key', 'EMBED_KEY');
+  const model = resolve('embed_model', 'EMBED_MODEL') || 'text-embedding-3-small';
+  return { url, key, model, enabled: !!(url && key) };
+}
+
+export async function embed(text: string, userId?: string): Promise<number[]> {
+  const cfg = await getConfig(userId);
+  if (!cfg.enabled) return [];
+  const res = await fetch(cfg.url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${EMBED_KEY}` },
-    body: JSON.stringify({ model: EMBED_MODEL, input: text }),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.key}` },
+    body: JSON.stringify({ model: cfg.model, input: text }),
   });
   if (!res.ok) throw new Error(`Embedding API ${res.status}`);
   const data = await res.json();
@@ -24,6 +40,4 @@ export function cosine(a: number[], b: number[]): number {
   return dot / (Math.sqrt(na) * Math.sqrt(nb) || 1);
 }
 
-export function getEmbeddingConfig() {
-  return { url: EMBED_URL, model: EMBED_MODEL, enabled: embeddingEnabled };
-}
+export { getConfig as getEmbeddingConfig };
