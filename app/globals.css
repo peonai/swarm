@@ -64,6 +64,7 @@ body {
   -webkit-mask-composite: xor; mask-composite: exclude;
   animation: borderShimmer 6s ease-in-out infinite;
   opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
 }
 .glow-card:hover::before { opacity: 1; }
 @keyframes borderShimmer {

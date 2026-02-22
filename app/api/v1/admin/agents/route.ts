@@ -6,7 +6,7 @@ import { withAdmin } from '@/lib/auth';
 
 export const GET = withAdmin(async (_req, userId) => {
   await initSchema();
-  const rows = await db.prepare('SELECT id, name, permissions, persona, created_at FROM agents WHERE user_id = ?').all(userId) as any[];
+  const rows = await db.prepare('SELECT id, name, api_key, permissions, persona, created_at FROM agents WHERE user_id = ?').all(userId) as any[];
   return NextResponse.json(rows.map(a => ({ ...a, persona: a.persona ? JSON.parse(a.persona) : null })));
 });
 

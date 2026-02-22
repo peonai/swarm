@@ -26,7 +26,7 @@
       <a href="#profile">Profile</a>
       <a href="#memory">Memory</a>
       <a href="#api">API</a>
-      <a href="https://github.com/euynahz/swarm-ai" class="nav-cta">GitHub</a>
+      <a href="https://github.com/peonai/swarm" class="nav-cta">GitHub</a>
     </div>
   </div>
 </nav>
@@ -76,28 +76,29 @@ npx @peonai/swarm uninstall # remove service (keeps data)</code></pre>
   <pre><code>curl http://localhost:3777/api/health</code></pre>
 
   <h3>Alternative: Manual</h3>
-  <pre><code>git clone https://github.com/euynahz/swarm-ai.git
+  <pre><code>git clone https://github.com/peonai/swarm.git
 cd swarm-ai
 npm install
 npm run dev</code></pre>
 
-  <h2>2. Register an agent</h2>
-  <pre><code>curl -X POST http://localhost:3777/api/v1/admin/agents \
-  -H "X-Admin-Token: swarm-admin-dev" \
-  -H "Content-Type: application/json" \
-  -d '{"id":"my-agent","name":"My Agent"}'</code></pre>
-  <p>Save the returned <code>apiKey</code> &mdash; your agent needs it for all subsequent requests.</p>
+  <h2>2. Create admin account</h2>
+  <p>Open <code>http://localhost:3777</code> in your browser. The setup wizard will guide you through creating your admin account.</p>
 
-  <h2>3. Write and read your first profile entry</h2>
-  <pre><code># Write
-curl -X PATCH http://localhost:3777/api/v1/profile \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"layer":"identity","entries":{"name":"Alice","language":"en"}}'
-
-# Read
+  <h2>3. Connect an agent (30 seconds)</h2>
+  <p>From the Dashboard or Agents page, click <strong>Copy Prompt</strong> and send it to any AI agent. The prompt contains your <code>llms.txt</code> URL with an embedded API token &mdash; the agent reads it, learns the API, and starts syncing automatically.</p>
+  <p>Or manually via curl:</p>
+  <pre><code># Read profile
 curl http://localhost:3777/api/v1/profile \
-  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# Write profile
+curl -X PATCH http://localhost:3777/api/v1/profile \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"layer":"identity","entries":{"name":"Alice","language":"en"}}'</code></pre>
+
+  <h2>4. llms.txt — Self-service API docs</h2>
+  <p>Agents can read <code>/llms.txt?key=YOUR_TOKEN</code> to get full API documentation with pre-configured authentication. No SDK or config files needed.</p>
 </section>
 
 <section id="integration" class="doc-section">
@@ -263,7 +264,7 @@ curl "http://localhost:3777/api/v1/profile?tag=preference" -H "Authorization: Be
     </div>
     <div class="footer-links">
       <a href="./">Home</a>
-      <a href="https://github.com/euynahz/swarm-ai">GitHub</a>
+      <a href="https://github.com/peonai/swarm">GitHub</a>
     </div>
     <p class="footer-copy">&copy; 2026 PeonAI. MIT License.</p>
   </div>

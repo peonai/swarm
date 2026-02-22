@@ -14,6 +14,7 @@ export async function initSchema() {
   await db.exec(`CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY, name TEXT, email ${TEXT_UNIQUE},
     password_hash TEXT, role TEXT DEFAULT 'user',
+    api_token TEXT UNIQUE, disabled INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (${NOW})
   )`);
 
@@ -23,6 +24,8 @@ export async function initSchema() {
       'ALTER TABLE users ADD COLUMN email TEXT',
       'ALTER TABLE users ADD COLUMN password_hash TEXT',
       "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'",
+      'ALTER TABLE users ADD COLUMN api_token TEXT',
+      'ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0',
     ]) { try { await db.exec(sql); } catch {} }
     try { await db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL'); } catch {}
   }
@@ -111,6 +114,12 @@ export async function getAgentByKey(apiKey: string) {
   await initSchema();
   return db.prepare('SELECT id, user_id as "userId", permissions FROM agents WHERE api_key = ?').get(apiKey) as
     Promise<{ id: string; userId: string; permissions: string } | null>;
+}
+
+export async function getUserByToken(apiToken: string) {
+  await initSchema();
+  return db.prepare('SELECT id, id as "userId" FROM users WHERE api_token = ? AND (disabled = 0 OR disabled IS NULL)').get(apiToken) as
+    Promise<{ id: string; userId: string } | null>;
 }
 
 export async function ensureDefaultUser() {

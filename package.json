@@ -1,12 +1,18 @@
 {
   "name": "@peonai/swarm",
-  "version": "0.1.0",
+  "version": "0.4.6",
   "description": "Cross-agent user profile sync — let every AI agent know your user without re-teaching",
   "repository": {
     "type": "git",
     "url": "https://github.com/peonai/swarm.git"
   },
-  "keywords": ["ai", "agent", "profile", "mcp", "swarm"],
+  "keywords": [
+    "ai",
+    "agent",
+    "profile",
+    "mcp",
+    "swarm"
+  ],
   "license": "MIT",
   "author": "PeonAI",
   "scripts": {
@@ -30,5 +36,15 @@
     "tailwindcss": "^4.1.8",
     "typescript": "^5.8.3",
     "vitest": "^4.0.18"
-  }
+  },
+  "bin": {
+    "swarm": "./bin/swarm.mjs"
+  },
+  "type": "module",
+  "files": [
+    "bin/",
+    ".next/standalone/",
+    ".next/static/",
+    "README.md"
+  ]
 }

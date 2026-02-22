@@ -16,48 +16,53 @@ export interface DB {
   prepare(sql: string): Stmt;
 }
 
-let db: DB;
+let _db: DB | null = null;
 
-if (DATABASE_URL) {
-  /* ── PostgreSQL ── */
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { Pool } = require('pg');
-  const pool = new Pool({ connectionString: DATABASE_URL });
+function getDb(): DB {
+  if (_db) return _db;
 
-  db = {
-    async exec(sql: string) { await pool.query(sql); },
-    prepare(sql: string) {
-      let idx = 0;
-      const pgSql = sql.replace(/\?/g, () => `$${++idx}`);
-      return {
-        async run(...params: any[]) { return pool.query(pgSql, params); },
-        async get(...params: any[]) { const r = await pool.query(pgSql, params); return r.rows[0] || null; },
-        async all(...params: any[]) { const r = await pool.query(pgSql, params); return r.rows; },
-      };
-    },
-  };
-} else {
-  /* ── SQLite ── */
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { DatabaseSync } = require('node:sqlite');
-  const DB_PATH = process.env.SWARM_DB_PATH || join(process.cwd(), 'data/swarm.db');
-  mkdirSync(dirname(DB_PATH), { recursive: true });
-  const sqlite = new DatabaseSync(DB_PATH);
-  sqlite.exec('PRAGMA journal_mode = WAL');
-  sqlite.exec('PRAGMA foreign_keys = ON');
-
-  db = {
-    async exec(sql: string) { sqlite.exec(sql); },
-    prepare(sql: string) {
-      const stmt = sqlite.prepare(sql);
-      return {
-        async run(...p: any[]) { return stmt.run(...p); },
-        async get(...p: any[]) { return stmt.get(...p); },
-        async all(...p: any[]) { return stmt.all(...p); },
-      };
-    },
-  };
+  if (DATABASE_URL) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Pool } = require('pg');
+    const pool = new Pool({ connectionString: DATABASE_URL });
+    _db = {
+      async exec(sql: string) { await pool.query(sql); },
+      prepare(sql: string) {
+        let idx = 0;
+        const pgSql = sql.replace(/\?/g, () => `$${++idx}`);
+        return {
+          async run(...params: any[]) { return pool.query(pgSql, params); },
+          async get(...params: any[]) { const r = await pool.query(pgSql, params); return r.rows[0] || null; },
+          async all(...params: any[]) { const r = await pool.query(pgSql, params); return r.rows; },
+        };
+      },
+    };
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { DatabaseSync } = require('node:sqlite');
+    const DB_PATH = process.env.SWARM_DB_PATH || join(process.cwd(), 'data/swarm.db');
+    mkdirSync(dirname(DB_PATH), { recursive: true });
+    const sqlite = new DatabaseSync(DB_PATH);
+    sqlite.exec('PRAGMA journal_mode = WAL');
+    sqlite.exec('PRAGMA foreign_keys = ON');
+    _db = {
+      async exec(sql: string) { sqlite.exec(sql); },
+      prepare(sql: string) {
+        const stmt = sqlite.prepare(sql);
+        return {
+          async run(...p: any[]) { return stmt.run(...p); },
+          async get(...p: any[]) { return stmt.get(...p); },
+          async all(...p: any[]) { return stmt.all(...p); },
+        };
+      },
+    };
+  }
+  return _db;
 }
+
+const db: DB = new Proxy({} as DB, {
+  get(_, prop: keyof DB) { return getDb()[prop].bind(getDb()); },
+});
 
 export default db;
 export const isPg = !!DATABASE_URL;

@@ -2,7 +2,7 @@ export const locales = {
   en: {
     brand: 'Swarm AI',
     dashboard: 'Dashboard',
-    nav: { overview: 'Overview', profile: 'Profiles', agents: 'Agents', memory: 'Memory', audit: 'Audit Log', settings: 'Settings' },
+    nav: { overview: 'Overview', profile: 'Profiles', agents: 'Agents', memory: 'Memory', audit: 'Audit Log', users: 'Users', settings: 'Settings' },
     status: { running: 'Running', offline: 'Offline' },
     auth: {
       title: 'Swarm AI',
@@ -39,6 +39,11 @@ export const locales = {
       persona: 'Persona',
       personaPlaceholder: '{"personality":"...","instructions":"..."}',
       save: 'Save', cancel: 'Cancel',
+      copyLlms: 'Copy llms.txt',
+      onboard: 'Connect an Agent',
+      onboardDesc: 'Copy the prompt below and send it to any AI agent:',
+      onboardPrompt: (url: string, key: string) => `Connect to my Swarm AI profile system. Read the docs at ${url}/llms.txt?key=${key} and use it to learn about me and remember what you learn.`,
+      copied: 'Copied!',
     },
     memory: {
       title: 'Memory',
@@ -75,12 +80,14 @@ export const locales = {
       save: 'Save', saved: 'Saved! Restart server to apply.',
       enabled: 'Enabled', disabled: 'Not configured',
       test: 'Test', testing: 'Testing...', testOk: 'Connection OK', testFail: 'Failed',
+      token: 'Your API Token',
+      tokenDesc: 'Use this token to connect agents to your profile',
     },
   },
   zh: {
     brand: '蜂群 AI',
     dashboard: '管理面板',
-    nav: { overview: '概览', profile: '画像', agents: 'Agents', memory: '记忆', audit: '审计日志', settings: '设置' },
+    nav: { overview: '概览', profile: '画像', agents: 'Agents', memory: '记忆', audit: '审计日志', users: '用户管理', settings: '设置' },
     status: { running: '运行中', offline: '离线' },
     auth: {
       title: '蜂群 AI',
@@ -117,6 +124,11 @@ export const locales = {
       persona: '人设',
       personaPlaceholder: '{"personality":"...","instructions":"..."}',
       save: '保存', cancel: '取消',
+      copyLlms: '复制 llms.txt',
+      onboard: '接入 Agent',
+      onboardDesc: '复制下方提示词，发送给任意 AI agent：',
+      onboardPrompt: (url: string, key: string) => `接入我的蜂群 AI 画像系统。阅读文档 ${url}/llms.txt?key=${key}，用它来了解我，并记住你学到的信息。`,
+      copied: '已复制！',
     },
     memory: {
       title: '记忆',
@@ -153,6 +165,8 @@ export const locales = {
       save: '保存', saved: '已保存！重启服务生效。',
       enabled: '已启用', disabled: '未配置',
       test: '测试', testing: '测试中...', testOk: '连接成功', testFail: '连接失败',
+      token: '你的 API Token',
+      tokenDesc: '用此 Token 将 Agent 接入你的画像',
     },
   },
 } as const;
