@@ -8,7 +8,7 @@ You use 5 AI agents. Each one asks the same questions. You repeat yourself endle
 
 ## Live Demo
 
-Try it without installing: **[hive.peonai.net](http://hive.peonai.net)**
+Try it without installing: **[hive.peonai.net](https://hive.peonai.net)**
 
 Test account: `peon` / `123456`
 

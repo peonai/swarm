@@ -18,7 +18,7 @@ Stack: Next.js standalone + SQLite, deploys in one command (`npx @peonai/swarm`)
 GitHub: https://github.com/peonai/swarm
 npm: `npx @peonai/swarm`
 Blog post: https://blog.peonai.net/posts/2026-02-22-swarm-ai/
-Live demo: http://hive.peonai.net (login: peon / 123456)
+Live demo: https://hive.peonai.net (login: peon / 123456)
 
 ⚠️ The demo is a shared public instance — do not connect real agents or enter personal data.
 
@@ -44,7 +44,7 @@ I built Swarm AI to fix this. It's a self-hosted server (Next.js + SQLite) that 
 **Privacy-first:** Everything runs on your hardware. No cloud dependency. No telemetry.
 
 GitHub: https://github.com/peonai/swarm
-Live demo: http://hive.peonai.net (test account: peon / 123456 — shared instance, don't use real data)
+Live demo: https://hive.peonai.net (test account: peon / 123456 — shared instance, don't use real data)
 
 ---
 
@@ -130,4 +130,4 @@ The cool part: onboarding is just copying a prompt. The agent reads a `llms.txt`
 
 `npx @peonai/swarm` to try it. MIT licensed.
 GitHub: <https://github.com/peonai/swarm>
-Demo: <http://hive.peonai.net> (login: peon / 123456 — shared instance, don't use real data)
+Demo: <https://hive.peonai.net> (login: peon / 123456 — shared instance, don't use real data)
