@@ -24,11 +24,15 @@ export const POST = withAdmin(async (req: NextRequest) => {
 });
 
 export const PATCH = withAdmin(async (req: NextRequest) => {
-  const { id, action } = await req.json();
+  const { id, action, password } = await req.json();
   if (!id) return NextResponse.json({ error: 'Missing user id' }, { status: 400 });
   if (action === 'disable') await db.prepare('UPDATE users SET disabled = 1 WHERE id = ?').run(id);
   else if (action === 'enable') await db.prepare('UPDATE users SET disabled = 0 WHERE id = ?').run(id);
-  else if (action === 'reset_token') {
+  else if (action === 'reset_password') {
+    if (!password || password.length < 6) return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+    await db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(password), id);
+    return NextResponse.json({ ok: true, message: 'Password reset' });
+  } else if (action === 'reset_token') {
     const newToken = `swarm_${crypto.randomUUID().replace(/-/g, '')}`;
     await db.prepare('UPDATE users SET api_token = ? WHERE id = ?').run(newToken, id);
     return NextResponse.json({ ok: true, api_token: newToken });

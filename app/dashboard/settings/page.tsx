@@ -9,6 +9,8 @@ export default function SettingsPage() {
   const [msg, setMsg] = useState('');
   const [testing, setTesting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [pw, setPw] = useState({ current: '', new: '', confirm: '' });
+  const [pwMsg, setPwMsg] = useState('');
 
   useEffect(() => {
     fetch('/api/v1/admin/settings', { headers: authHeaders(token) }).then(r => r.json()).then(d => {
@@ -38,6 +40,17 @@ export default function SettingsPage() {
   const copyToken = () => {
     if (user?.api_token) { navigator.clipboard.writeText(user.api_token); setCopied(true); setTimeout(() => setCopied(false), 2000); }
   };
+  const changePassword = async () => {
+    if (!pw.current || !pw.new) return setPwMsg('Please fill in all fields');
+    if (pw.new !== pw.confirm) return setPwMsg('New passwords do not match');
+    if (pw.new.length < 6) return setPwMsg('Password must be at least 6 characters');
+    const res = await fetch('/api/v1/auth/password', { method: 'PUT', headers: authHeaders(token),
+      body: JSON.stringify({ currentPassword: pw.current, newPassword: pw.new }) });
+    const d = await res.json();
+    if (res.ok) { setPwMsg('Password changed ✓'); setPw({ current: '', new: '', confirm: '' }); }
+    else setPwMsg(d.error || 'Failed');
+    setTimeout(() => setPwMsg(''), 4000);
+  };
 
   const inputStyle = { background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' };
 
@@ -61,6 +74,22 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+
+      <div className="glow-card p-5 mb-6" style={{ border: '1px solid var(--border)' }}>
+        <h2 className="text-sm font-semibold mb-1">Change Password</h2>
+        <p className="text-[10px] mb-3" style={{ color: 'var(--text2)' }}>Update your account password</p>
+        <div className="space-y-2">
+          {[{ label: 'Current Password', key: 'current' }, { label: 'New Password', key: 'new' }, { label: 'Confirm New Password', key: 'confirm' }].map(f => (
+            <input key={f.key} type="password" placeholder={f.label} value={(pw as any)[f.key]}
+              onChange={e => setPw({ ...pw, [f.key]: e.target.value })}
+              className="w-full rounded-lg px-3 py-2 text-xs" style={inputStyle} />
+          ))}
+        </div>
+        <div className="flex items-center gap-2 mt-3">
+          <button onClick={changePassword} className="btn-amber px-4 py-2 text-xs">Change Password</button>
+          {pwMsg && <span className="text-xs" style={{ color: pwMsg.includes('✓') ? 'var(--green)' : 'var(--red)' }}>{pwMsg}</span>}
+        </div>
+      </div>
 
       <div className="glow-card p-5" style={{ border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-2 mb-4">

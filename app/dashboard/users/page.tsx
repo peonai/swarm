@@ -21,6 +21,11 @@ export default function UsersPage() {
   };
   const action = async (id: string, act: string) => {
     if (act === 'delete') { if (id === me?.id || !confirm(`Delete "${id}"?`)) return; await fetch('/api/v1/admin/users', { method: 'DELETE', headers: authHeaders(token), body: JSON.stringify({ id }) }); }
+    else if (act === 'reset_password') {
+      const password = prompt(`Enter new password for "${id}" (min 6 chars):`);
+      if (!password || password.length < 6) return alert('Password must be at least 6 characters');
+      await fetch('/api/v1/admin/users', { method: 'PATCH', headers: authHeaders(token), body: JSON.stringify({ id, action: act, password }) });
+    }
     else { await fetch('/api/v1/admin/users', { method: 'PATCH', headers: authHeaders(token), body: JSON.stringify({ id, action: act }) }); }
     load();
   };
@@ -58,6 +63,7 @@ export default function UsersPage() {
               {u.id !== me?.id && <>
                 <button onClick={() => action(u.id, u.disabled ? 'enable' : 'disable')} style={smallBtn(u.disabled ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)', u.disabled ? 'var(--green)' : 'var(--red)')}>
                   {u.disabled ? 'Enable' : 'Disable'}</button>
+                <button onClick={() => action(u.id, 'reset_password')} style={smallBtn('rgba(168,85,247,0.1)', '#a855f7')}>Reset Pwd</button>
                 <button onClick={() => action(u.id, 'reset_token')} style={smallBtn('rgba(96,165,250,0.1)', 'var(--blue)')}>Reset Token</button>
                 <button onClick={() => action(u.id, 'delete')} style={smallBtn('rgba(248,113,113,0.1)', 'var(--red)')}>Delete</button>
               </>}
