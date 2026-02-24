@@ -54,8 +54,10 @@
     <a href="#api">API Endpoints</a>
     <a href="#scripts">Shell Scripts</a>
     <a href="#admin">Admin API</a>
+    <a href="#webhooks">Webhooks</a>
     <a href="#audit">Audit &amp; History</a>
     <a href="#auth">Authentication</a>
+    <a href="#sdk">SDKs</a>
     <a href="#env">Environment</a>
   </div>
 </aside>
@@ -194,6 +196,10 @@ curl "http://localhost:3777/api/v1/profile?tag=preference" -H "Authorization: Be
         <tr><td><span class="method post">POST</span></td><td>/api/v1/reflect</td><td>Trigger memory→profile reflection. Body: <code>{"since":"ISO","limit":100}</code></td></tr>
         <tr><td><span class="method get">GET</span></td><td>/api/v1/persona/me</td><td>Read current agent persona</td></tr>
         <tr><td><span class="method get">GET</span></td><td>/api/v1/persona/:agentId</td><td>Read another agent's persona</td></tr>
+        <tr><td><span class="method get">GET</span></td><td>/api/v1/webhooks</td><td>List registered webhooks</td></tr>
+        <tr><td><span class="method post">POST</span></td><td>/api/v1/webhooks</td><td>Register webhook. Body: <code>{"url":"...","events":"*"}</code></td></tr>
+        <tr><td><span class="method delete">DELETE</span></td><td>/api/v1/webhooks</td><td>Delete webhook. Body: <code>{"id":1}</code></td></tr>
+        <tr><td><span class="method get">GET</span></td><td>/api/openapi</td><td>OpenAPI 3.0 spec (YAML)</td></tr>
       </tbody>
     </table>
   </div>
@@ -233,6 +239,42 @@ curl "http://localhost:3777/api/v1/profile?tag=preference" -H "Authorization: Be
       </tbody>
     </table>
   </div>
+</section>
+
+<section id="webhooks" class="doc-section">
+  <h1>Webhooks</h1>
+  <p>Get notified in real-time when profiles or memories change. Webhook payloads are signed with HMAC-SHA256.</p>
+
+  <h2>Events</h2>
+  <ul>
+    <li><code>profile.updated</code> — Profile entries written via PATCH</li>
+    <li><code>memory.created</code> — New memory added</li>
+    <li><code>profile.observed</code> — Observations submitted via /observe</li>
+  </ul>
+
+  <h2>Register</h2>
+  <pre><code>curl -X POST http://localhost:3777/api/v1/webhooks \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/hook","events":"profile.updated,memory.created"}'</code></pre>
+  <p>Returns a <code>secret</code> for verifying signatures. Verify with: <code>HMAC-SHA256(secret, body)</code> matches the <code>X-Swarm-Signature</code> header.</p>
+</section>
+
+<section id="sdk" class="doc-section">
+  <h1>SDKs</h1>
+
+  <h2>Python</h2>
+  <pre><code>pip install swarm-ai-client</code></pre>
+  <pre><code>from swarm_client import SwarmClient
+
+client = SwarmClient("http://localhost:3777", api_key="swarm_xxx")
+profile = client.get_profile()
+client.set_profile("preferences", {"theme": "dark"})
+client.add_memory("User prefers dark mode", tags=["preference"])
+client.add_webhook("https://example.com/hook")</code></pre>
+
+  <h2>OpenAPI</h2>
+  <p>Machine-readable API spec available at <code>/api/openapi</code>. Use it to generate clients in any language.</p>
 </section>
 
 <section id="admin" class="doc-section">
