@@ -102,3 +102,26 @@ Agent: I noticed you prefer dark mode and use vim keybindings.
 ```
 
 The agent reads and writes profile data as needed — no bootstrap scripts, no external instruction fetching.
+
+## Best Practices
+
+### Stay in Sync
+
+The biggest mistake agents make: **connecting once and never updating**. Swarm is only as good as the data agents feed it.
+
+| When | What to do |
+|------|------------|
+| **Session start** | `read_profile` — load user context before doing anything |
+| **After learning something new** | `update_profile` or `observe` — preferences, tools, project changes |
+| **After completing a task** | `observe` — record what happened, what was decided |
+| **Periodically (heartbeat/cron)** | `update_profile` — push any accumulated changes |
+| **Before a complex task** | `search_memory` — check what other agents already know |
+
+### Rule of Thumb
+
+> If you learned something about the user that another agent would benefit from knowing, push it to Swarm immediately. Don't wait.
+
+### What to Sync
+
+- **Always sync:** project changes, tool preferences, communication style, tech stack updates, key decisions
+- **Skip:** ephemeral data, one-off commands, sensitive credentials
