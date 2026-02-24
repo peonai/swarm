@@ -1,6 +1,6 @@
 {
   "name": "@peonai/swarm",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Cross-agent user profile sync — let every AI agent know your user without re-teaching",
   "repository": {
     "type": "git",
@@ -45,6 +45,7 @@
     "bin/",
     ".next/standalone/",
     ".next/static/",
-    "README.md"
+    "README.md",
+    "docs/mcp.md"
   ]
 }

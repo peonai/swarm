@@ -24,17 +24,39 @@ npx @peonai/swarm
 npx @peonai/swarm uninstall
 ```
 
-## Connect an Agent (30 seconds)
+## Connect an Agent
+
+### Option A: MCP (Recommended for Claude Code, Cursor, Windsurf)
+
+Add to your project's `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "swarm-ai": {
+      "command": "npx",
+      "args": ["@peonai/swarm", "mcp"],
+      "env": {
+        "SWARM_API_URL": "https://your-swarm-instance.com",
+        "SWARM_API_KEY": "your-agent-key"
+      }
+    }
+  }
+}
+```
+
+Your agent gets 6 tools: `read_profile`, `update_profile`, `observe`, `search_memory`, `write_memory`, `read_persona`. See [docs/mcp.md](docs/mcp.md) for details.
+
+### Option B: llms.txt (For agents that support URL-based onboarding)
 
 1. Open dashboard → create admin account
 2. Copy the onboarding prompt from Dashboard or Agents page
 3. Send it to any AI agent
 4. Done. The agent reads `llms.txt`, learns the API, and starts syncing.
 
-No SDK. No config files. No skill installation. Just a URL.
-
 ## Features
 
+- **MCP Server** — Native integration with Claude Code, Cursor, Windsurf via Model Context Protocol
 - **Multi-user** — Setup wizard, JWT login, user management
 - **User profiles** — Layered (identity, preferences, work, context), with confidence scores
 - **Shared memory** — Cross-agent memories with FTS5 full-text search

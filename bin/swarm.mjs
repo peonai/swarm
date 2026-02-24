@@ -21,7 +21,15 @@ async function uninstall() {
   rl.close();
 }
 
+async function mcp() {
+  const { execSync: run } = await import('child_process');
+  const mcpPath = join(dirname(fileURLToPath(import.meta.url)), 'swarm-mcp.mjs');
+  // Pass through env vars and stdio for MCP stdio transport
+  run(`node ${mcpPath}`, { stdio: 'inherit', env: process.env });
+}
+
 async function main() {
+  if (process.argv[2] === 'mcp') return mcp();
   if (process.argv[2] === 'uninstall') return uninstall();
   console.log('\n🐝 Swarm AI Setup\n');
 
