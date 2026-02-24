@@ -1,6 +1,6 @@
 {
   "name": "@peonai/swarm",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Cross-agent user profile sync — let every AI agent know your user without re-teaching",
   "repository": {
     "type": "git",
