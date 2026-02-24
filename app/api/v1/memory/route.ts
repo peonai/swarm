@@ -4,6 +4,7 @@ import db, { isPg } from '@/lib/db';
 import { initSchema, logAudit } from '@/lib/schema';
 import { withAuthOrAdmin } from '@/lib/auth';
 import { embed, cosine } from '@/lib/embedding';
+import { fireWebhooks } from '@/lib/webhooks';
 
 export const GET = withAuthOrAdmin(async (req, agent) => {
   await initSchema();
@@ -91,6 +92,7 @@ export const POST = withAuthOrAdmin(async (req, agent) => {
   }).catch(() => {});
 
   await logAudit(agent.userId, agent.id, 'memory.write', 'memory', key || undefined, content.slice(0, 100));
+  fireWebhooks(agent.userId, 'memory.created', { key, content: content.slice(0, 200), source: agent.id });
   return NextResponse.json({ ok: true });
 });
 

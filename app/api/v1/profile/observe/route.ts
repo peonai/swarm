@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import db, { isPg } from '@/lib/db';
 import { initSchema, logAudit } from '@/lib/schema';
 import { withAuth } from '@/lib/auth';
+import { fireWebhooks } from '@/lib/webhooks';
 
 const NOW_SQL = isPg ? 'NOW()' : "datetime('now')";
 
@@ -30,5 +31,6 @@ export const POST = withAuth(async (req, agent) => {
       obs.confidence ?? 0.5, agent.id, tags, obs.expiresAt || defaultExpiry);
   }
   await logAudit(agent.userId, agent.id, 'profile.observe', 'profile', undefined, `${observations.length} observations`);
+  fireWebhooks(agent.userId, 'profile.observed', { keys: observations.map((o: any) => o.key), source: agent.id });
   return NextResponse.json({ ok: true, count: observations.length });
 });

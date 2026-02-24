@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getAgentByKey, getUserByToken } from './schema';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.SWARM_JWT_SECRET || 'swarm-dev-secret');
+import { JWT_SECRET } from './jwt';
 
 async function verifyJwt(token: string): Promise<{ userId: string; role?: string } | null> {
   try {

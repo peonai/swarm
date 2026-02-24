@@ -105,6 +105,16 @@ export async function initSchema() {
     PRIMARY KEY (user_id, key)
   )`);
 
+  await db.exec(`CREATE TABLE IF NOT EXISTS webhooks (
+    id ${AUTO_ID},
+    user_id TEXT NOT NULL,
+    url TEXT NOT NULL,
+    events TEXT NOT NULL DEFAULT '*',
+    secret TEXT,
+    active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (${NOW})
+  )`);
+
   await db.exec(`CREATE TABLE IF NOT EXISTS profile_history (
     id ${AUTO_ID},
     user_id TEXT NOT NULL,

@@ -36,6 +36,7 @@ async function main() {
     embedModel = await ask('Model', 'embedding-3');
   }
 
+  const jwtSecret = Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
   const token = await ask('\n🔑 Admin token', 'swarm-' + Math.random().toString(36).slice(2, 10));
 
   console.log(`\n📦 Copying to ${dir}...`);
@@ -44,7 +45,7 @@ async function main() {
   cpSync(join(pkg, '.next/static'), join(dir, '.next/static'), { recursive: true });
 
   const env = [
-    `PORT=${port}`, `HOSTNAME=0.0.0.0`, `SWARM_ADMIN_TOKEN=${token}`,
+    `PORT=${port}`, `HOSTNAME=0.0.0.0`, `SWARM_ADMIN_TOKEN=${token}`, `SWARM_JWT_SECRET=${jwtSecret}`,
     embedUrl && `EMBED_URL=${embedUrl}`,
     embedKey && `EMBED_KEY=${embedKey}`,
     embedModel && `EMBED_MODEL=${embedModel}`,

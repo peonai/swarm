@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db, { isPg } from '@/lib/db';
 import { initSchema, logAudit, logProfileHistory } from '@/lib/schema';
 import { withAuth } from '@/lib/auth';
+import { fireWebhooks } from '@/lib/webhooks';
 
 const NOW = isPg ? 'NOW()' : "datetime('now')";
 
@@ -56,6 +57,7 @@ export const PATCH = withAuth(async (req, agent) => {
     await logProfileHistory(agent.userId, layer, key, old?.value || null, JSON.stringify(v.value), agent.id);
   }
   await logAudit(agent.userId, agent.id, 'profile.update', 'profile', layer, `${Object.keys(entries).length} entries`);
+  fireWebhooks(agent.userId, 'profile.updated', { layer, keys: Object.keys(entries), source: agent.id });
   return NextResponse.json({ ok: true });
 });
 

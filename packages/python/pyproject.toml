@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "swarm-ai-client"
+version = "0.5.0"
+description = "Python client for Swarm AI — cross-agent profile sync"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+dependencies = ["httpx>=0.24"]
+
+[project.urls]
+Homepage = "https://github.com/peonai/swarm"
+Documentation = "https://docs.peonai.net"

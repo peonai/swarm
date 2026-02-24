@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 import { initSchema } from '@/lib/schema';
 import { verifyPassword } from '@/lib/password';
+import { JWT_SECRET } from '@/lib/jwt';
 import db from '@/lib/db';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.SWARM_JWT_SECRET || 'swarm-dev-secret');
 
 export async function POST(req: NextRequest) {
   await initSchema();

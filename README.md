@@ -46,6 +46,9 @@ No SDK. No config files. No skill installation. Just a URL.
 - **Admin controls** — Disable users, reset tokens, localhost-only admin API
 - **Mobile-friendly** — Responsive dashboard with collapsible sidebar
 - **SQLite / PostgreSQL** — SQLite for dev, Postgres for scale
+- **Webhooks** — Real-time notifications when profiles or memories change
+- **OpenAPI spec** — Machine-readable API docs at `/api/openapi`
+- **Python SDK** — `pip install swarm-ai-client`
 - **Observe API** — Auto-extract profile data from natural language
 
 ## API
@@ -57,6 +60,9 @@ POST /api/v1/profile/observe  # Auto-extract from text
 GET  /api/v1/memory           # Search memories
 POST /api/v1/memory           # Write memory
 GET  /llms.txt?key=<token>    # Self-service API docs for agents
+POST /api/v1/webhooks         # Register webhook
+GET  /api/v1/webhooks         # List webhooks
+GET  /api/openapi             # OpenAPI 3.0 spec
 GET  /api/health              # Health check
 ```
 
@@ -70,7 +76,7 @@ Agent B ──┤── Swarm API ──────┤── Memory (FTS5)
 Agent C ──┘   (REST + JWT)     └── Audit Log
 ```
 
-- **npm**: `@peonai/swarm`
+- **npm**: `@peonai/swarm@0.5.0`
 - **Stack**: Next.js standalone, SQLite/PostgreSQL
 - **Deploy**: systemd service via interactive CLI
 

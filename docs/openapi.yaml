@@ -1,0 +1,414 @@
+openapi: 3.0.3
+info:
+  title: Swarm AI API
+  description: Cross-agent user profile synchronization API
+  version: 0.5.0
+  license:
+    name: MIT
+    url: https://github.com/peonai/swarm/blob/main/LICENSE
+servers:
+  - url: '{baseUrl}/api/v1'
+    variables:
+      baseUrl:
+        default: http://localhost:3777
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Agent API key, user token, or JWT
+    AdminToken:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+
+    ProfileEntry:
+      type: object
+      properties:
+        value: {}
+        confidence: { type: number, default: 1.0 }
+        source: { type: string }
+        tags: { type: array, items: { type: string } }
+        expiresAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Memory:
+      type: object
+      properties:
+        id: { type: integer }
+        key: { type: string }
+        content: { type: string }
+        source: { type: string }
+        tags: { type: array, items: { type: string } }
+        type: { type: string, enum: [observation, fact, preference, episode] }
+        importance: { type: number }
+        entities: { type: array, items: { type: string } }
+        created_at: { type: string }
+
+    Webhook:
+      type: object
+      properties:
+        id: { type: integer }
+        url: { type: string, format: uri }
+        events: { type: string, description: "Comma-separated events or '*' for all" }
+        active: { type: integer }
+        created_at: { type: string }
+
+paths:
+  /profile:
+    get:
+      tags: [Profile]
+      summary: Read user profile
+      parameters:
+        - name: layer
+          in: query
+          schema: { type: string }
+        - name: tag
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Profile grouped by layer
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/ProfileEntry'
+    patch:
+      tags: [Profile]
+      summary: Write profile entries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [layer, entries]
+              properties:
+                layer: { type: string }
+                entries: { type: object, additionalProperties: {} }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+    delete:
+      tags: [Profile]
+      summary: Delete a profile entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [layer, key]
+              properties:
+                layer: { type: string }
+                key: { type: string }
+      responses:
+        '200':
+          description: OK
+
+  /profile/observe:
+    post:
+      tags: [Profile]
+      summary: Auto-extract profile from observations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [observations]
+              properties:
+                observations:
+                  type: array
+                  items:
+                    type: object
+                    required: [key, value]
+                    properties:
+                      layer: { type: string, default: context }
+                      key: { type: string }
+                      value: {}
+                      confidence: { type: number }
+                      tags: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  count: { type: integer }
+
+  /memory:
+    get:
+      tags: [Memory]
+      summary: Search memories
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+          description: Full-text search query
+        - name: mode
+          in: query
+          schema: { type: string, enum: [semantic] }
+          description: Use semantic search (requires embedding config)
+        - name: tag
+          in: query
+          schema: { type: string }
+        - name: type
+          in: query
+          schema: { type: string }
+        - name: entity
+          in: query
+          schema: { type: string }
+        - name: since
+          in: query
+          schema: { type: string, format: date-time }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        '200':
+          description: List of memories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Memory'
+    post:
+      tags: [Memory]
+      summary: Create a memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                key: { type: string }
+                content: { type: string }
+                tags: { type: array, items: { type: string } }
+                type: { type: string, enum: [observation, fact, preference, episode] }
+                importance: { type: number }
+                entities: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags: [Memory]
+      summary: Delete a memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer }
+      responses:
+        '200':
+          description: OK
+
+  /webhooks:
+    get:
+      tags: [Webhooks]
+      summary: List webhooks
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Webhook'
+    post:
+      tags: [Webhooks]
+      summary: Register a webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string, format: uri }
+                events: { type: string, description: "Comma-separated or '*'", default: '*' }
+                secret: { type: string, description: Auto-generated if omitted }
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  secret: { type: string }
+    delete:
+      tags: [Webhooks]
+      summary: Delete a webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer }
+      responses:
+        '200':
+          description: OK
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and get JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: JWT token and user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+                      role: { type: string }
+                      api_token: { type: string }
+
+  /auth/password:
+    put:
+      tags: [Auth]
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string }
+                newPassword: { type: string }
+      responses:
+        '200':
+          description: OK
+
+  /persona/me:
+    get:
+      tags: [Persona]
+      summary: Get current agent persona
+      responses:
+        '200':
+          description: Agent persona text
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  persona: { type: string }
+
+  /persona/{agentId}:
+    get:
+      tags: [Persona]
+      summary: Get persona for a specific agent
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Agent persona
+
+  /reflect:
+    post:
+      tags: [Profile]
+      summary: LLM-powered profile extraction from text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string }
+      responses:
+        '200':
+          description: Extracted observations
+
+  /setup:
+    get:
+      tags: [Setup]
+      summary: Check if instance is initialized
+      security: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  initialized: { type: boolean }
+    post:
+      tags: [Setup]
+      summary: Create first admin user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+                name: { type: string }
+      responses:
+        '200':
+          description: OK
