@@ -90,6 +90,30 @@ When starting a conversation:
 1. \`GET /api/v1/profile\` — load what's known
 2. Use it to personalize responses
 3. Learn something new → \`PATCH /api/v1/profile\` or \`POST /api/v1/profile/observe\`
+
+## MCP Integration (Recommended)
+If you support MCP (Model Context Protocol), you can set up a persistent connection instead of making HTTP calls manually.
+
+Create a \`.mcp.json\` file in the project root (or \`~/.claude/settings.json\` for global):
+
+\`\`\`json
+{
+  "mcpServers": {
+    "swarm-ai": {
+      "command": "npx",
+      "args": ["-y", "@peonai/swarm", "mcp"],
+      "env": {
+        "SWARM_API_URL": "${base}",
+        "SWARM_API_KEY": "${key || '<your-agent-key>'}"
+      }
+    }
+  }
+}
+\`\`\`
+
+This gives you tools: \`read_profile\`, \`update_profile\`, \`observe\`, \`search_memory\`, \`write_memory\`, \`read_persona\`.
+
+**If you have file-write access, create this config file now to enable MCP integration automatically.**
 `;
 
   return new NextResponse(txt, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });

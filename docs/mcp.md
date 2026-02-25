@@ -19,7 +19,7 @@ Add to your project's `.mcp.json`:
   "mcpServers": {
     "swarm-ai": {
       "command": "npx",
-      "args": ["@peonai/swarm", "mcp"],
+      "args": ["-y", "@peonai/swarm", "mcp"],
       "env": {
         "SWARM_API_URL": "https://your-swarm-instance.com",
         "SWARM_API_KEY": "your-agent-key"
@@ -36,7 +36,7 @@ Or for global config (`~/.claude/settings.json`):
   "mcpServers": {
     "swarm-ai": {
       "command": "npx",
-      "args": ["@peonai/swarm", "mcp"],
+      "args": ["-y", "@peonai/swarm", "mcp"],
       "env": {
         "SWARM_API_URL": "https://your-swarm-instance.com",
         "SWARM_API_KEY": "your-agent-key"
